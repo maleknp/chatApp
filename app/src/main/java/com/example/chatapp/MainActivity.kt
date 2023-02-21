@@ -1,7 +1,6 @@
 package com.example.chatapp
 
 import android.annotation.SuppressLint
-import android.graphics.Paint.Align
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,13 +8,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -32,19 +29,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.chatapp.destinations.ChatRoomScreenDestination
 import com.example.chatapp.destinations.LoginScreenDestination
+import com.example.chatapp.destinations.SignUpScreenDestination
 import com.example.chatapp.destinations.UserScreenDestination
+import com.example.chatapp.ui.LoginViewModel
+import com.example.chatapp.ui.MessageViewModel
 import com.example.chatapp.ui.theme.ChatAppTheme
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import dagger.hilt.android.AndroidEntryPoint
+
+@AndroidEntryPoint
 
 class MainActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        auth = Firebase.auth
 //        FirebaseApp.initializeApp(this)
         setContent {
             ChatAppTheme {
@@ -56,12 +64,34 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
     }
+
+    private fun checkCurrentUser() {
+        // [START check_current_user]
+        val user = Firebase.auth.currentUser
+        if (user != null) {
+            // User is signed in
+        } else {
+            // No user is signed in
+        }
+        // [END check_current_user]
+    }
+
+    private fun signOut() {
+        // [START auth_sign_out]
+        Firebase.auth.signOut()
+        // [END auth_sign_out]
+    }
+
 }
 
 @Composable
-//@Destination(start = true)
-fun SignUpScreen(nav: DestinationsNavigator) {
+@Destination
+fun SignUpScreen(nav: DestinationsNavigator,
+                 viewModel: LoginViewModel= hiltViewModel(),
+                 m: MessageViewModel= hiltViewModel()
+) {
 
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -182,7 +212,7 @@ fun SignUpScreen(nav: DestinationsNavigator) {
 
                             Button(
                                 onClick = {
-
+                                    viewModel.signUp(email,password)
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(10.dp),
@@ -233,7 +263,7 @@ fun SignUpScreen(nav: DestinationsNavigator) {
 
 @Composable
 @Destination(start = true)
-fun LoginScreen(nav: DestinationsNavigator) {
+fun LoginScreen(nav: DestinationsNavigator, viewModel: LoginViewModel = hiltViewModel()) {
 
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -278,7 +308,9 @@ fun LoginScreen(nav: DestinationsNavigator) {
                         .padding(30.dp, 0.dp, 30.dp, 0.dp), horizontalArrangement = Arrangement.Center) {
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
-                            value = email, onValueChange = { email = it },
+                            value = "", onValueChange = {
+
+                            },
                             textStyle = TextStyle.Default.copy(
                                 fontSize = 14.sp,
                                 color = Color(0xFFCCCCCC)
@@ -368,7 +400,7 @@ fun LoginScreen(nav: DestinationsNavigator) {
 
                         Button(
                             onClick = {
-                                      nav.navigate(UserScreenDestination)
+                                viewModel.logIn(email,password)
                             },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp),
@@ -396,7 +428,7 @@ fun LoginScreen(nav: DestinationsNavigator) {
                             color = androidx.compose.ui.graphics.Color.Black
                         )
 
-                        TextButton(onClick = { /*nav.navigate(SignUpScreenDestination)*/ }, colors = ButtonDefaults.buttonColors(
+                        TextButton(onClick = { nav.navigate(SignUpScreenDestination) }, colors = ButtonDefaults.buttonColors(
                             backgroundColor = Color(0xFFA925)
                         ),) {
                             Text(
@@ -571,7 +603,10 @@ fun ChatRoomScreen(nav: DestinationsNavigator) {
 
 
         LazyColumn(
-            modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 0.dp).weight(1f).fillMaxSize()
+            modifier = Modifier
+                .padding(0.dp, 0.dp, 0.dp, 0.dp)
+                .weight(1f)
+                .fillMaxSize()
         ) {
 
             items(messages.size) { message ->
