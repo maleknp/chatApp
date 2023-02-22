@@ -464,7 +464,10 @@ fun LoginScreen(nav: DestinationsNavigator, viewModel: LoginViewModel = hiltView
 
 @Composable
 @Destination
-fun ChatRoomScreen(nav: DestinationsNavigator) {
+fun ChatRoomScreen(
+    nav: DestinationsNavigator,
+    messageViewModel: MessageViewModel= hiltViewModel()
+    ) {
 
     var sendMessage by rememberSaveable { mutableStateOf("") }
 
@@ -595,24 +598,8 @@ fun ChatRoomScreen(nav: DestinationsNavigator) {
         }
 
 
-        val messages = listOf(
-            Message("Hello There", true),
-            Message("Hello There", false),
-            Message("Hello There", true),
-            Message("Hello There", false),
-            Message("Hello There", true),
-            Message("Hello There", false),
-            Message("Hello There", true),
-            Message("Hello There", false),
-            Message("Hello There", true),
-            Message("Hello There", false),
-            Message("Hello There", true),
-            Message("Hello There", false),
-            Message("Hello There", true),
-            Message("Hello There", false),
-            Message("Hello There", true),
-            Message("Hello There", false),
-        )
+        val messages = messageViewModel.messages
+
 
 
         LazyColumn(
@@ -623,7 +610,7 @@ fun ChatRoomScreen(nav: DestinationsNavigator) {
         ) {
 
             items(messages.size) { message ->
-                if (messages[message].sen) {
+                if (messageViewModel.checkMe(messages[message].email.toString())) {
                     Row(
                         modifier = Modifier.fillMaxSize(),
                         horizontalArrangement = Arrangement.Start
@@ -640,7 +627,7 @@ fun ChatRoomScreen(nav: DestinationsNavigator) {
                         ) {
                             Column(modifier = Modifier.padding(20.dp)) {
                                 Row() {
-                                    Text(text = messages[message].mess, fontSize = 12.sp)
+                                    Text(text = messages[message].message, fontSize = 12.sp)
                                 }
 
                             }
@@ -664,7 +651,7 @@ fun ChatRoomScreen(nav: DestinationsNavigator) {
                         ) {
                             Column(modifier = Modifier.padding(20.dp)) {
                                 Row() {
-                                    Text(text = messages[message].mess, fontSize = 12.sp)
+                                    Text(text = messages[message].message, fontSize = 12.sp)
                                 }
 
                             }
@@ -747,7 +734,9 @@ fun ChatRoomScreen(nav: DestinationsNavigator) {
 
                                 trailingIcon = {
                             Button(
-                                onClick = { },
+                                onClick = {
+                                          messageViewModel.sendMessage("hi",sendMessage)
+                                },
                                 colors = ButtonDefaults.buttonColors(
                                     backgroundColor = Color(0xFFF5F5F5),
                                     contentColor = androidx.compose.ui.graphics.Color.White
