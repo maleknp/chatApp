@@ -9,6 +9,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -46,6 +48,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 @AndroidEntryPoint
@@ -599,12 +602,14 @@ fun ChatRoomScreen(
 
 
         val messages = messageViewModel.messages
+        val listState = rememberLazyListState()
+        fun LazyListState.isScrolledToEnd() = layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1
 
 
 
-        LazyColumn(
+        LazyColumn(state = listState,
             modifier = Modifier
-                .padding(0.dp, 0.dp, 0.dp, 0.dp)
+                .padding(10.dp, 0.dp, 10.dp, 0.dp)
                 .weight(1f)
                 .fillMaxSize()
         ) {
@@ -628,6 +633,7 @@ fun ChatRoomScreen(
                             Column(modifier = Modifier.padding(20.dp)) {
                                 Row() {
                                     Text(text = messages[message].message, fontSize = 12.sp)
+
                                 }
 
                             }
@@ -652,14 +658,18 @@ fun ChatRoomScreen(
                             Column(modifier = Modifier.padding(20.dp)) {
                                 Row() {
                                     Text(text = messages[message].message, fontSize = 12.sp)
+
                                 }
 
                             }
                         }
 
+
                     }
                 }
+
             }
+
         }
 
 
@@ -684,6 +694,7 @@ fun ChatRoomScreen(
 
                     Column() {
                         Row() {
+
                             TextField(
                                 modifier = Modifier.fillMaxWidth(),
                                 value = sendMessage, onValueChange = { sendMessage = it },
@@ -702,13 +713,14 @@ fun ChatRoomScreen(
                                 ),
                                 placeholder = {
                                     Text(
-                                        text = "Type something..",
+                                        text = " Type something..",
                                         fontSize = 14.sp,
                                         color = Color(0xFF9A9A9A),
                                         modifier = Modifier.padding(5.dp,0.dp,0.dp,0.dp)
                                     )
                                 },
-                                leadingIcon = {
+
+                                        leadingIcon = {
                                     Button(
                                     onClick = {
 
@@ -719,7 +731,8 @@ fun ChatRoomScreen(
                                     ),
                                     modifier = Modifier
                                         .width(48.dp)
-                                        .height(48.dp),
+                                        .height(48.dp)
+                                        .padding(0.dp,0.dp,3.dp,0.dp),
                                     shape = RoundedCornerShape(15.dp, 15.dp, 15.dp, 15.dp),
                                     contentPadding = PaddingValues(10.dp)
                                 ) {
@@ -735,7 +748,8 @@ fun ChatRoomScreen(
                                 trailingIcon = {
                             Button(
                                 onClick = {
-                                          messageViewModel.sendMessage("hi",sendMessage)
+                                          messageViewModel.sendMessage("another user",sendMessage)
+
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     backgroundColor = Color(0xFFF5F5F5),
