@@ -604,7 +604,6 @@ fun ChatRoomScreen(
         val scope = rememberCoroutineScope()
 
 
-
         LazyColumn(state = listState,
             modifier = Modifier
                 .padding(10.dp, 0.dp, 10.dp, 0.dp)
@@ -755,6 +754,7 @@ fun ChatRoomScreen(
                                 onClick = {
                                     messageViewModel.sendMessage("another user",sendMessage)
                                     scope.launch {listState.animateScrollToItem(messages.size-1,0)  }
+                                    sendMessage = ""
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     backgroundColor = Color(0xFFF5F5F5),
