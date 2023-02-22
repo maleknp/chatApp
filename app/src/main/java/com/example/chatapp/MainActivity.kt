@@ -52,27 +52,24 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 @AndroidEntryPoint
-
 class MainActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        auth = Firebase.auth
-//        FirebaseApp.initializeApp(this)
         setContent {
             ChatAppTheme {
                 // A surface container using the 'background' color from the theme
-                Column(modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                ) {
                     DestinationsNavHost(navGraph = NavGraphs.root)
                 }
             }
         }
 
     }
-
     private fun checkCurrentUser() {
         // [START check_current_user]
         val user = Firebase.auth.currentUser
@@ -531,7 +528,7 @@ fun ChatRoomScreen(
                     Spacer(modifier = Modifier.size(15.dp, 15.dp))
                     Column(modifier = Modifier.padding(0.dp, 5.dp, 0.dp, 0.dp)) {
                         Text(
-                            "Alberto Moedano",
+                            messageViewModel.GetEmail(),
                             fontSize = 14.sp,
                             color = androidx.compose.ui.graphics.Color.Black
                         )
@@ -603,7 +600,8 @@ fun ChatRoomScreen(
 
         val messages = messageViewModel.messages
         val listState = rememberLazyListState()
-        fun LazyListState.isScrolledToEnd() = layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1
+
+        val scope = rememberCoroutineScope()
 
 
 
@@ -611,7 +609,7 @@ fun ChatRoomScreen(
             modifier = Modifier
                 .padding(10.dp, 0.dp, 10.dp, 0.dp)
                 .weight(1f)
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
 
             items(messages.size) { message ->
@@ -633,12 +631,12 @@ fun ChatRoomScreen(
                             Column(modifier = Modifier.padding(20.dp)) {
                                 Row() {
                                     Text(text = messages[message].message, fontSize = 12.sp)
-
                                 }
-
                             }
                         }
-
+                    }
+                    Row() {
+                        Text(text = "From: ${messages[message].email}", fontSize = 8.sp)
                     }
                 } else {
                     Row(
@@ -657,13 +655,16 @@ fun ChatRoomScreen(
                         ) {
                             Column(modifier = Modifier.padding(20.dp)) {
                                 Row() {
-                                    Text(text = messages[message].message, fontSize = 12.sp)
+                                    Text(text =messages[message].message, fontSize = 12.sp)
 
                                 }
-
                             }
                         }
 
+
+                    }
+                    Row() {
+                        Text(text = "From: ${messages[message].to}", fontSize = 8.sp)
 
                     }
                 }
@@ -732,7 +733,7 @@ fun ChatRoomScreen(
                                     modifier = Modifier
                                         .width(48.dp)
                                         .height(48.dp)
-                                        .padding(0.dp,0.dp,3.dp,0.dp),
+                                        .padding(0.dp, 0.dp, 3.dp, 0.dp),
                                     shape = RoundedCornerShape(15.dp, 15.dp, 15.dp, 15.dp),
                                     contentPadding = PaddingValues(10.dp)
                                 ) {
@@ -748,8 +749,8 @@ fun ChatRoomScreen(
                                 trailingIcon = {
                             Button(
                                 onClick = {
-                                          messageViewModel.sendMessage("another user",sendMessage)
-
+                                    messageViewModel.sendMessage("another user",sendMessage)
+                                    scope.launch {listState.animateScrollToItem(messages.size-1,0)  }
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     backgroundColor = Color(0xFFF5F5F5),

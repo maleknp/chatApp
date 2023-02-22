@@ -29,6 +29,10 @@ class MessageViewModel @Inject constructor(
         return email == auth.currentUser?.email
     }
 
+    fun GetEmail(): String {
+        return auth.currentUser?.email.toString()
+    }
+
     init{
         getMessages()
     }
