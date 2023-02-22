@@ -8,11 +8,19 @@ class UserApiImpl @Inject constructor(
    val auth: FirebaseAuth
 ):UserApi {
     override suspend fun login(email:String,password:String): Boolean {
-        return auth.signInWithEmailAndPassword(email,password).await() != null
+        return try{ auth.signInWithEmailAndPassword(email,password).await() != null}
+        catch (e:Exception){
+            false
+
+        }
     }
 
     override suspend fun signUp(email:String,password:String): Boolean {
-        return auth.createUserWithEmailAndPassword(email,password).await() != null
+        return try {
+            auth.createUserWithEmailAndPassword(email, password).await() != null
+        }catch (e:Exception){
+            false
+        }
     }
 
 

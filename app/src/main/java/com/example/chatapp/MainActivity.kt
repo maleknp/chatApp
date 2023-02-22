@@ -2,6 +2,7 @@ package com.example.chatapp
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -18,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -44,6 +46,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.tasks.await
 
 @AndroidEntryPoint
 
@@ -139,7 +142,7 @@ fun SignUpScreen(nav: DestinationsNavigator,
                             value = email, onValueChange = { email = it },
                             textStyle = TextStyle.Default.copy(
                                 fontSize = 14.sp,
-                                color = Color(0xFFCCCCCC)
+                                color = Color.Black
                             ),
                             shape = RoundedCornerShape(10.dp),
                             colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -151,7 +154,7 @@ fun SignUpScreen(nav: DestinationsNavigator,
                             leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "Email Icon", tint = Color(0xFFC5C5C7)) },
 
                             placeholder = {
-                                Text(text = "Email", fontSize = 14.sp, color = Color(0xFFE5E5E5))
+                                Text(text = "Email", fontSize = 14.sp, color = Color(0xFFcccccc))
                             },
                             singleLine = true,
                         )
@@ -167,7 +170,7 @@ fun SignUpScreen(nav: DestinationsNavigator,
                                 value = password, onValueChange = { password = it },
                                 textStyle = TextStyle.Default.copy(
                                     fontSize = 14.sp,
-                                    color = Color(0xFFCCCCCC)
+                                    color = Color.Black
                                 ),
                                 shape = RoundedCornerShape(10.dp),
                                 colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -209,10 +212,12 @@ fun SignUpScreen(nav: DestinationsNavigator,
                         Row(modifier = Modifier
                             .fillMaxWidth()
                             .padding(30.dp, 0.dp, 30.dp, 0.dp), horizontalArrangement = Arrangement.Center) {
-
+                             val context = LocalContext.current
                             Button(
                                 onClick = {
                                     viewModel.signUp(email,password)
+                                    Toast.makeText(context,"the SignUp is successful",Toast.LENGTH_SHORT).show()
+                                    nav.navigate(LoginScreenDestination)
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(10.dp),
@@ -308,12 +313,11 @@ fun LoginScreen(nav: DestinationsNavigator, viewModel: LoginViewModel = hiltView
                         .padding(30.dp, 0.dp, 30.dp, 0.dp), horizontalArrangement = Arrangement.Center) {
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
-                            value = "", onValueChange = {
-
-                            },
+                             value = email, onValueChange = { email = it }
+                            ,
                             textStyle = TextStyle.Default.copy(
                                 fontSize = 14.sp,
-                                color = Color(0xFFCCCCCC)
+                                color = Color.Black
                             ),
                             shape = RoundedCornerShape(10.dp),
                             colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -341,7 +345,7 @@ fun LoginScreen(nav: DestinationsNavigator, viewModel: LoginViewModel = hiltView
                             value = password, onValueChange = { password = it },
                             textStyle = TextStyle.Default.copy(
                                 fontSize = 14.sp,
-                                color = Color(0xFFCCCCCC)
+                                color = Color.Black
                             ),
                             shape = RoundedCornerShape(10.dp),
                             colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -401,6 +405,7 @@ fun LoginScreen(nav: DestinationsNavigator, viewModel: LoginViewModel = hiltView
                         Button(
                             onClick = {
                                 viewModel.logIn(email,password)
+
                             },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(10.dp),
@@ -415,6 +420,14 @@ fun LoginScreen(nav: DestinationsNavigator, viewModel: LoginViewModel = hiltView
                         }
 
                     }
+                    val context = LocalContext.current
+
+                    if(viewModel.isLogin.value){
+                        Toast.makeText(context,"the Login is successful",Toast.LENGTH_SHORT).show()
+                        viewModel.isLogin.value=false
+                        nav.navigate(UserScreenDestination)
+                    }
+
 
                     Spacer(modifier = Modifier.size(5.dp))
                     Row(modifier = Modifier
@@ -467,7 +480,7 @@ fun ChatRoomScreen(nav: DestinationsNavigator) {
                     Column() {
                         Button(
                             onClick = {
-
+                                 nav.navigate(UserScreenDestination)
                             },
                             colors = ButtonDefaults.buttonColors(
                                 backgroundColor = Color(0xFFFAFAFA),
