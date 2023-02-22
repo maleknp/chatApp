@@ -663,10 +663,14 @@ fun ChatRoomScreen(
 
 
                     }
-                    Row() {
-                        Text(text = "From: ${messages[message].to}", fontSize = 8.sp)
 
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(text = "From: ${messages[message].email}", fontSize = 8.sp, textAlign = TextAlign.End)
                     }
+
                 }
 
             }

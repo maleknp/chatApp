@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatapp.model.Message
 import com.example.chatapp.model.MessageApi
+import com.example.chatapp.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.oAuthCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,6 +34,7 @@ class MessageViewModel @Inject constructor(
         return auth.currentUser?.email.toString()
     }
 
+
     init{
         getMessages()
     }
@@ -45,6 +47,7 @@ class MessageViewModel @Inject constructor(
      fun getMessages(){
         messageApi.getMessage().onEach {
             messages = it.toMutableList()
+
         }.launchIn(viewModelScope)
     }
 }
